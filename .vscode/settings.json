@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.sdf": "xml",
+    "nvs_flash.h": "c",
+    "param.h": "c"
+  }
+}
