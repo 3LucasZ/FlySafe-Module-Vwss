@@ -2,6 +2,7 @@
   "files.associations": {
     "*.sdf": "xml",
     "nvs_flash.h": "c",
-    "param.h": "c"
+    "param.h": "c",
+    "esp_err.h": "c"
   }
 }
