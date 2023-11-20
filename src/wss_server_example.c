@@ -31,6 +31,13 @@ struct async_resp_arg {
 static const char *TAG = "wss_echo_server";
 static const size_t max_clients = 4;
 
+static esp_err_t root_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, "<h1>Hello Secure World!</h1>", HTTPD_RESP_USE_STRLEN);
+
+    return ESP_OK;
+}
 static esp_err_t ws_handler(httpd_req_t *req)
 {
     if (req->method == HTTP_GET) {
@@ -120,6 +127,11 @@ static const httpd_uri_t ws = {
         .user_ctx   = NULL,
         .is_websocket = true,
         .handle_ws_control_frames = true
+};
+static const httpd_uri_t root = {
+        .uri        = "/",
+        .method     = HTTP_GET,
+        .handler    = root_get_handler,
 };
 
 
@@ -212,6 +224,7 @@ static httpd_handle_t start_wss_echo_server(void)
     // Set URI handlers
     ESP_LOGI(TAG, "Registering URI handlers");
     httpd_register_uri_handler(server, &ws);
+    httpd_register_uri_handler(server, &root);
     wss_keep_alive_set_user_ctx(keep_alive, server);
 
     return server;
