@@ -26,21 +26,16 @@
 #define LIDARLite_h
 
 #define LIDARLITE_ADDR_DEFAULT 0x62
+typedef bitset<8> byte;
 
-#include <Arduino.h>
+void begin(int configuration, bool fasti2c, char lidarliteAddress); // 0, false, ADDR_DEFAULT
+void configure(int configuration, char lidarliteAddress); // 0, ADDR_DEFAULT
+void setI2Caddr(char newAddress, char disableDefault, char lidarliteAddress); // _, _, ADDR_DEFAULT
+void reset(char lidarliteAddress); // ADDR_DEFAULT
+int distance(bool biasCorrection, char lidarliteAddress); // true, ADDR_DEFAULT
+void write(char myAddress, char myValue, char lidarliteAddress); // _, _, ADDR_DEFAULT
+void read(char myAddress, int numOfBytes, unsigned char arrayToSave[2], bool monitorBusyFlag, char lidarliteAddress); // _, _, _, _
+void correlationRecordToSerial(char separator, int numberOfReadings, char lidarliteAddress); // '\n', 256, ADDR_DEFAULT
 
-class LIDARLite
-{
-  public:
-      LIDARLite();
-      void begin(int = 0, bool = false, char = LIDARLITE_ADDR_DEFAULT);
-      void configure(int = 0, char = LIDARLITE_ADDR_DEFAULT);
-      void setI2Caddr(char, char, char = LIDARLITE_ADDR_DEFAULT);
-      void reset(char = LIDARLITE_ADDR_DEFAULT);
-      int distance(bool = true, char = LIDARLITE_ADDR_DEFAULT);
-      void write(char, char, char = LIDARLITE_ADDR_DEFAULT);
-      void read(char, int, byte*, bool, char);
-      void correlationRecordToSerial(char = '\n', int = 256, char = LIDARLITE_ADDR_DEFAULT);
-};
 
 #endif

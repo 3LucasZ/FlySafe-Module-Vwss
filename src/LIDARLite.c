@@ -23,17 +23,16 @@
 
 ------------------------------------------------------------------------------*/
 
-#include <Arduino.h>
-#include <Wire.h>
 #include <stdarg.h>
 #include "LIDARLite.h"
+#include <stdbool.h>
 
 /*------------------------------------------------------------------------------
   Constructor
 
   Use LIDARLite::begin to initialize.
 ------------------------------------------------------------------------------*/
-LIDARLite::LIDARLite(){}
+
 
 /*------------------------------------------------------------------------------
   Begin
@@ -48,7 +47,7 @@ LIDARLite::LIDARLite(){}
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::begin(int configuration, bool fasti2c, char lidarliteAddress)
+void begin(int configuration, bool fasti2c, char lidarliteAddress)
 {
   Wire.begin(); // Start I2C
   if(fasti2c)
@@ -83,7 +82,7 @@ void LIDARLite::begin(int configuration, bool fasti2c, char lidarliteAddress)
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::configure(int configuration, char lidarliteAddress)
+void configure(int configuration, char lidarliteAddress)
 {
   switch (configuration)
   {
@@ -138,9 +137,9 @@ void LIDARLite::configure(int configuration, char lidarliteAddress)
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::setI2Caddr(char newAddress, char disableDefault, char lidarliteAddress)
+void setI2Caddr(char newAddress, char disableDefault, char lidarliteAddress)
 {
-  byte dataBytes[2];
+  unsigned char dataBytes[2];
 
   // Read UNIT_ID serial number bytes and write them into I2C_ID byte locations
   read ((0x16 | 0x80), 2, dataBytes, false, lidarliteAddress);
@@ -174,7 +173,7 @@ void LIDARLite::setI2Caddr(char newAddress, char disableDefault, char lidarliteA
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::reset(char lidarliteAddress)
+void reset(char lidarliteAddress)
 {
   write(0x00,0x00,lidarliteAddress);
 } /* LIDARLite::reset */
@@ -204,7 +203,7 @@ void LIDARLite::reset(char lidarliteAddress)
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-int LIDARLite::distance(bool biasCorrection, char lidarliteAddress)
+int distance(bool biasCorrection, char lidarliteAddress)
 {
   if(biasCorrection)
   {
@@ -237,7 +236,7 @@ int LIDARLite::distance(bool biasCorrection, char lidarliteAddress)
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::write(char myAddress, char myValue, char lidarliteAddress)
+void write(char myAddress, char myValue, char lidarliteAddress)
 {
   Wire.beginTransmission((int)lidarliteAddress);
   Wire.write((int)myAddress); // Set register for write
@@ -247,7 +246,7 @@ void LIDARLite::write(char myAddress, char myValue, char lidarliteAddress)
   int nackCatcher = Wire.endTransmission();
   if(nackCatcher != 0)
   {
-    Serial.println("> nack");
+    printf("> nack");
   }
 
   delay(1); // 1 ms delay for robustness with successive reads and writes
@@ -269,7 +268,7 @@ void LIDARLite::write(char myAddress, char myValue, char lidarliteAddress)
   monitorBusyFlag: if true, the routine will repeatedly read the status
     register until the busy flag (LSB) is 0.
 ------------------------------------------------------------------------------*/
-void LIDARLite::read(char myAddress, int numOfBytes, byte arrayToSave[2], bool monitorBusyFlag, char lidarliteAddress)
+void read(char myAddress, int numOfBytes, unsigned char arrayToSave[2], bool monitorBusyFlag, char lidarliteAddress)
 {
   int busyFlag = 0; // busyFlag monitors when the device is done with a measurement
   if(monitorBusyFlag)
@@ -288,7 +287,7 @@ void LIDARLite::read(char myAddress, int numOfBytes, byte arrayToSave[2], bool m
     int nackCatcher = Wire.endTransmission();
     if(nackCatcher != 0)
     {
-      Serial.println("> nack");
+      printf("> nack");
     }
 
     Wire.requestFrom((int)lidarliteAddress,1); // Read register 0x01
@@ -313,7 +312,7 @@ void LIDARLite::read(char myAddress, int numOfBytes, byte arrayToSave[2], bool m
     int nackCatcher = Wire.endTransmission();
     if(nackCatcher != 0)
     {
-      Serial.println("> nack");
+      printf("> nack");
     }
 
     // Perform read of 1 or 2 bytes, save in arrayToSave
@@ -334,7 +333,7 @@ void LIDARLite::read(char myAddress, int numOfBytes, byte arrayToSave[2], bool m
   {
     bailout:
       busyCounter = 0;
-      Serial.println("> read failed");
+      printf("> read failed");
   }
 } /* LIDARLite::read */
 
@@ -364,11 +363,11 @@ void LIDARLite::read(char myAddress, int numOfBytes, byte arrayToSave[2], bool m
   lidarliteAddress: Default 0x62. Fill in new address here if changed. See
     operating manual for instructions.
 ------------------------------------------------------------------------------*/
-void LIDARLite::correlationRecordToSerial(char separator, int numberOfReadings, char lidarliteAddress)
+void correlationRecordToSerial(char separator, int numberOfReadings, char lidarliteAddress)
 {
 
   // Array to store read values
-  byte correlationArray[2];
+  unsigned char correlationArray[2];
   // Var to store value of correlation record
   int correlationValue = 0;
   //  Selects memory bank
@@ -384,8 +383,8 @@ void LIDARLite::correlationRecordToSerial(char separator, int numberOfReadings, 
     if((int)correlationArray[1] == 1){
       correlationValue |= 0xff00;
     }
-    Serial.print((int)correlationValue);
-    Serial.print(separator);
+    printf((int)correlationValue);
+    printf(separator);
   }
   // test mode disable
   write(0x40,0x00,lidarliteAddress);
